@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateLoginDto } from './dto/create-login.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateLoginDto } from './dto/update-login.dto';
@@ -20,7 +20,7 @@ export class LoginService {
     const { email, password } = loginDto;
     const user = await this.usersRepository.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new error('Invalid credentials');
+      throw new BadRequestException('Invalid credentials');
     }
 
     const tokendata = { email: user.email, id: user.id, role: user.role };

@@ -16,7 +16,7 @@ export class Post {
     @Column()
     comments!: string;
 
-    @ManyToOne(() => User) 
+    @ManyToOne(() => User,{onDelete:'CASCADE'}) 
     user!: User;
 
 }

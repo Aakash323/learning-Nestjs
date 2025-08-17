@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,10 +16,12 @@ export class PostService {
         @InjectRepository(User)
         private readonly userrepository : Repository<User>,
     ){}
+
+    
      async create(createPostdto: CreatePostDto, user:User, userId:number): Promise<Post> {
         const userExists = await this.userrepository.findOne({ where: { id:userId } });
     if (!userExists) {
-        throw new Error('User not found');
+        throw new BadRequestException('User not found');
     }
     if(user.role!=='admin')
     {
