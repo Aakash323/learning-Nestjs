@@ -1,15 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
 
 
 async function bootstrap() {
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'debug', 'warn']
+  });
 
-app.enableCors(
-  '*'
-)
+app.enableCors({
+  origin:"*",
+  methods:'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+  allowedHeaders :'Content-Type,Authorization',
+  credentials:true,
+})
+
+app.useStaticAssets(join(__dirname,'..','uploads'),{
+  prefix:'/uploads'
+})
+
+
  const configService = app.get(ConfigService);
  const port = configService.get<string>('PORT') 
  await app.listen(port!,'0.0.0.0');

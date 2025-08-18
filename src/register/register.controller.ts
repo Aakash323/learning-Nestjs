@@ -18,6 +18,13 @@ export class RegisterController {
     return this.registerService.getUser();
   }              
 
+  @Get(':id')
+  findById(
+    @Param('id') id:string,
+  ){
+      return this.registerService.getUserById(parseInt(id))
+  }
+
   @Put(':id')
   update(
     @Param('id') id: string,

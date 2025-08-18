@@ -1,14 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Put, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { JwtAuthGuard } from 'src/auth/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
-
+  
   @UseGuards(JwtAuthGuard)
   @Post(':userId')
   create(
@@ -16,10 +19,11 @@ export class PostController {
     @Body() createPostDto: CreatePostDto,
     @Req() req: any
   ) {
-    return this.postService.create(createPostDto,req.user,parseInt(userId));
+    const filename = req.file.filename;
+    return this.postService.create(createPostDto,req.user,parseInt(userId),filename);
   }
 
-
+  @UseGuards(JwtAuthGuard)
   @Get(':userId')
   findAll(
     @Param('userId') userId :string,
@@ -34,9 +38,11 @@ export class PostController {
   @Param('postId') postId: string,
   @Param('userId') userId :string,
   @Body() updatePostDto: UpdatePostDto,
+  @UploadedFile() file : Express.Multer.File,
   @Req() req:any
   ){
-    return this.postService.update(parseInt(userId), updatePostDto,req.user,parseInt(postId));
+    const filename = req.file.filename;
+    return this.postService.update(parseInt(userId), updatePostDto,req.user,parseInt(postId),filename);
   }
   
   @UseGuards(JwtAuthGuard)
@@ -49,4 +55,5 @@ export class PostController {
     return this.postService.delete(parseInt(postId),req.user);
   }
 }
+
 

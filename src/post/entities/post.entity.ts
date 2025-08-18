@@ -19,4 +19,7 @@ export class Post {
     @ManyToOne(() => User,{onDelete:'CASCADE'}) 
     user!: User;
 
+    @Column({nullable:true})
+    image! :string
+
 }

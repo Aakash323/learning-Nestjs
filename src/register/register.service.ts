@@ -35,6 +35,16 @@ export class RegisterService {
     return this.userRepository.find();
   }
 
+  async getUserById(id:number):Promise<User>{
+   const user = await this.userRepository.findOne({
+        where:{id}
+      })
+      if(!user){
+        throw new BadRequestException('User not found')
+      }
+      return user;
+  }
+
   async update(id: number,updateRegisterDto: UpdateRegisterDto): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: id },

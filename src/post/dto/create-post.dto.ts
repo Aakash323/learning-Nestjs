@@ -12,4 +12,7 @@ export class CreatePostDto {
     @MaxLength(100)
     comment:string;
 
+
+    
+
 }
