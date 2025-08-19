@@ -20,6 +20,9 @@ export class Post {
     user!: User;
 
     @Column({nullable:true})
-    image! :string
+    image! :string;
+
+    @Column({ nullable: true })
+    video!: string; 
 
 }

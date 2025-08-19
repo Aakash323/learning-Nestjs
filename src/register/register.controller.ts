@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, BadRequestException } from '@nestjs/common';
 import { RegisterService } from './register.service';
 import { CreateRegisterDto } from './dto/create-register.dto';
 import { UpdateRegisterDto } from './dto/update-register.dto';
+import { error } from 'console';
 
 @Controller('register')
 export class RegisterController {
@@ -22,7 +23,11 @@ export class RegisterController {
   findById(
     @Param('id') id:string,
   ){
-      return this.registerService.getUserById(parseInt(id))
+   const Id = parseInt(id)
+    if(!id || isNaN(Id)){
+        throw new BadRequestException('Invalid user Id');
+    }
+      return this.registerService.getUserById(Id)
   }
 
   @Put(':id')

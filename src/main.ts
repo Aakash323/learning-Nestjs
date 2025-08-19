@@ -19,15 +19,19 @@ app.enableCors({
   credentials:true,
 })
 
-app.useStaticAssets(join(__dirname,'..','uploads'),{
-  prefix:'/uploads'
+app.useStaticAssets(join(__dirname,'..','uploads','images'),{
+  prefix:'/uploads/images'
+})
+
+app.useStaticAssets(join(__dirname,'..','uploads','videos'),{
+  prefix:'/uploads/videos'
 })
 
 
  const configService = app.get(ConfigService);
  const port = configService.get<string>('PORT') 
  await app.listen(port!,'0.0.0.0');
- console.log(`Backend is listening on ${port}`);
- 
+ console.log(`Backend is listening on ${port}`); 
 }
+
 bootstrap();

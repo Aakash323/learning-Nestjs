@@ -24,7 +24,8 @@ export class PostService {
     createPostdto: CreatePostDto,
     user: User,
     userId: number,
-    filename: string,
+    image: string,
+    video: string,
   ): Promise<Post> {
     const userExists = await this.userrepository.findOne({
       where: { id: userId },
@@ -39,8 +40,10 @@ export class PostService {
     const post = this.postrepository.create({
       ...createPostdto,
       user,
-      image: filename ? `${filename}` : undefined,
+      image: image ? `${image}` : undefined,
+      video: video ? `${video}` : undefined,
     });
+
     return this.postrepository.save(post);
   }
 
@@ -49,7 +52,7 @@ export class PostService {
     updatePostDto: UpdatePostDto,
     user: User,
     userId: number,
-    filename:string,
+    file: Express.Multer.File,
   ): Promise<Post> {
     const post = await this.postrepository.findOne({
       where: { id: postId },
@@ -71,9 +74,12 @@ export class PostService {
       throw new UnauthorizedException('Not authorized to update this post');
     }
     Object.assign(post, updatePostDto);
-    if (filename) {
-    post.image = `${filename}`;
-  }
+
+    if (file.mimetype.startsWith('images/')) {
+      post.image = file.filename;
+    } else if (file.mimetype.startsWith('video/')) {
+      post.video = file.filename;
+    }
     return this.postrepository.save(post);
   }
 
@@ -91,6 +97,10 @@ export class PostService {
       where: { user: { id: userId } },
       relations: ['user'],
     });
+  }
+
+  async getAllPosts(): Promise<Post[]> {
+    return this.postrepository.find();
   }
 
   async delete(postId: number, user: User): Promise<{ message: string }> {
