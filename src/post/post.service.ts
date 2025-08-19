@@ -20,7 +20,7 @@ export class PostService {
     private readonly userrepository: Repository<User>,
   ) {}
 
-  async create(
+  async create( 
     createPostdto: CreatePostDto,
     user: User,
     userId: number,
@@ -48,40 +48,45 @@ export class PostService {
   }
 
   async update(
-    postId: number,
-    updatePostDto: UpdatePostDto,
-    user: User,
-    userId: number,
-    file: Express.Multer.File,
-  ): Promise<Post> {
-    const post = await this.postrepository.findOne({
-      where: { id: postId },
-      relations: ['user'],
-    });
+  postId: number,
+  updatePostDto: UpdatePostDto,
+  user: User,
+  userId: number,
+  image?: Express.Multer.File,
+  video?: Express.Multer.File,
+): Promise<Post> {
+  const post = await this.postrepository.findOne({
+    where: { id: postId },
+    relations: ['user'],
+  });
 
-    if (!post) {
-      throw new NotFoundException(`Post with ID ${postId} not found`);
-    }
-
-    const userExists = await this.userrepository.findOne({
-      where: { id: userId },
-    });
-    if (!userExists) {
-      throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-
-    if (user.role !== 'admin' && post.user.id !== userId) {
-      throw new UnauthorizedException('Not authorized to update this post');
-    }
-    Object.assign(post, updatePostDto);
-
-    if (file.mimetype.startsWith('images/')) {
-      post.image = file.filename;
-    } else if (file.mimetype.startsWith('video/')) {
-      post.video = file.filename;
-    }
-    return this.postrepository.save(post);
+  if (!post) {
+    throw new NotFoundException(`Post with ID ${postId} not found`);
   }
+
+  const userExists = await this.userrepository.findOne({
+    where: { id: userId },
+  });
+  if (!userExists) {
+    throw new NotFoundException(`User with ID ${userId} not found`);
+  }
+
+  if (user.role !== 'admin' && post.user.id !== userId) {
+    throw new UnauthorizedException('Not authorized to update this post');
+  }
+
+  Object.assign(post, updatePostDto);
+
+  if (image && image.mimetype.startsWith('image/')) {
+    post.image = image.filename;
+  }
+  if (video && video.mimetype.startsWith('video/')) {
+    post.video = video.filename;
+  }
+
+  return this.postrepository.save(post);
+}
+
 
   async getPost(user: User, userId: number): Promise<Post[]> {
     const userExists = await this.userrepository.findOne({
@@ -100,7 +105,9 @@ export class PostService {
   }
 
   async getAllPosts(): Promise<Post[]> {
-    return this.postrepository.find();
+    return this.postrepository.find({
+      relations:['user'],
+    });
   }
 
   async delete(postId: number, user: User): Promise<{ message: string }> {

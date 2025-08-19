@@ -56,24 +56,29 @@ export class PostController {
   findAll() {
     return this.postService.getAllPosts();
   }
+@UseGuards(JwtAuthGuard)
+@Put(':postId/:userId')
+update(
+  @Param('postId') postId: string,
+  @Param('userId') userId: string,
+  @Body() updatePostDto: UpdatePostDto,
+  @Req() req: any,
+) {
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-  @UseGuards(JwtAuthGuard)
-  @Put(':postId/:userId')
-  update(
-    @Param('postId') postId: string,
-    @Param('userId') userId: string,
-    @Body() updatePostDto: UpdatePostDto,
-    @Req() req: any,
-  ) {
-    const file = req.file;
-    return this.postService.update(
-      parseInt(userId),
-      updatePostDto,
-      req.user,
-      parseInt(postId),
-      file,
-    );
-  }
+  const image = files?.image ? files.image[0] : undefined;
+  const video = files?.video ? files.video[0] : undefined;
+
+  return this.postService.update(
+    parseInt(postId),
+    updatePostDto,
+    req.user,
+    parseInt(userId),
+    image,
+    video,
+  );
+}
+
 
   @UseGuards(JwtAuthGuard)
   @Delete(':postId')
